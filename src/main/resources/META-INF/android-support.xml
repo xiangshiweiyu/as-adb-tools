@@ -1,0 +1,5 @@
+<!--
+  Android Studio 特定扩展：当前无需额外注册，仅用于声明 android 插件的可选依赖。
+-->
+<idea-plugin>
+</idea-plugin>

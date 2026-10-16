@@ -1,0 +1,233 @@
+<!--
+  ADB 操作可视化工具 —— 插件描述符
+  移植自 C# WinForms 版 AdbTool（MVP 架构）。
+-->
+<idea-plugin require-restart="true">
+    <id>com.asadb.tools</id>
+    <name>ADB Toolkit</name>
+    <!-- 注意：<license> 与 <icon> 是 2024.3(243) 才支持的顶层元素，
+         2024.1/2024.2(241/242) 的 XmlReader 遇到未识别顶层元素会直接判为非法描述符，故此处不得使用。
+         插件 Logo 改用平台官方约定的文件方式提供：META-INF/pluginIcon.svg（浅色主题）与 pluginIcon_dark.svg（深色主题），
+         该方式自 2019.1 起支持，不依赖任何顶层元素，插件管理器与插件市场均可正常展示。 -->
+    <vendor email="xiangshiweiyu@outlook.com" url="https://github.com/xiangshiweiyu/as-adb-tools">AdbTools</vendor>
+
+    <description><![CDATA[
+        <p>ADB Toolkit is an Android Studio plugin providing a visual interface for common adb operations: device connection management, app install and uninstall, APK launch, file transfer, hosts and proxy management, logcat capture with TAG filtering, screen capture and recording, screen mirroring via scrcpy, simulated touch input, custom commands, and APK signing.</p>
+
+        <h3>ADB 操作可视化工具（Android Studio 插件版）</h3>
+        <p>将日常开发中高频使用的 adb 命令行操作封装成可视化按钮，在 Android Studio 右侧「ADB 工具」窗口中一键执行，所有命令输出直接展示在内置 Terminal 工具窗口，无需记忆和手敲 adb 命令。</p>
+
+        <h4>功能模块说明</h4>
+        <ul>
+            <li><b>连接管理</b>：启动 adb（连接adb）、连接 / 断开局域网 IP 设备、再次连接（自动预填上次 IP）、查看连接状态、扫描局域网设备、重启 adb、结束当前 adb 操作。</li>
+            <li><b>设备管理</b>：设备权限操作（Root / Remount）；设备信息查询（前台 Activity 栈信息、当前前台进程、前台 Activity、设备信息、电池信息、CPU 占用、内存占用、存储空间）；设备操作（重启设备支持系统 / Bootloader / Recovery 三种模式、开启 WiFi 调试并自动回显设备 IP、端口转发支持正向 / 反向 / 清除全部规则）。</li>
+            <li><b>应用管理</b>：安装 APK、卸载应用、按包名启动、按 Intent action 参数启动、结束进程、清除缓存、提取 APK（自动拉取到保存目录）、停用 / 启用应用。卸载 / 清理 / 提取 / 停用 / 启用均支持从已安装应用列表中下拉选择。</li>
+            <li><b>应用签名</b>：一键 APK 签名；签名校验；签名校验 MD5 一条龙（签名 → 校验 → 生成 MD5，失败即中断）；生成 APK MD5。签名文件路径在「设置 → 签名配置」中配置，别名与密码通过环境变量提供。</li>
+            <li><b>文件操作</b>：向设备推送文件；获取 / 指定 / 清空设备 hosts 文件；设置 / 清除设备全局代理。</li>
+            <li><b>屏幕操作</b>：截图、开始录屏、结束录屏、获取屏幕分辨率、模拟点击 / 模拟滑动 / 模拟输入 / 按键事件、屏幕投影（scrcpy，可在「设置 → 工具配置」中指定路径，未指定时自动探测）。</li>
+            <li><b>日志操作</b>：logcat 日志抓取（支持「按时间抓取」与「时间线程抓取」两种格式及 TAG 过滤），并可与录屏同步开始 / 同步结束。</li>
+            <li><b>我的命令</b>：自定义动态 adb 命令快捷按钮，可新增 / 删除，高频命令一键执行。</li>
+        </ul>
+
+        <h4>个性化配置（「设置」弹窗）</h4>
+        <ul>
+            <li><b>页面修改</b>：命令窗字体大小、字体名称、字体颜色与背景颜色（字体候选按平台适配，macOS 提供 Menlo / SF Mono / Monaco 等本地字体）。</li>
+            <li><b>缓存配置</b>：adb 路径、缓存目录（自定义启动项保存目录）、日志 / 录屏 / 截图保存目录、待安装应用目录、待签名 APK 文件夹（安装与签名选择文件时自动定位）。</li>
+            <li><b>签名配置</b>：APK 签名所用的密钥库文件（.keystore / .jks）路径选择。</li>
+            <li><b>工具配置</b>：scrcpy、apksigner、java 三个外部工具的可执行文件路径（留空时自动探测；scrcpy 留空则按 PATH 与常见安装目录查找，java 留空则使用 IDE 自带 JVM）。</li>
+            <li><b>关于</b>：插件版本信息。</li>
+        </ul>
+
+        <p>所有界面主题自动跟随 Android Studio 深浅色主题，按钮文字自动适配字号保证完整显示。</p>
+        <p>首次使用请在「设置 → 缓存配置」中配置 adb 路径；插件也会自动探测 Android SDK 中的 adb。</p>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <h4>v1.0.70</h4>
+        <p>Release preparation for JetBrains Marketplace: plugin logo added, CHANGELOG.md bundled into the distribution, the plugin display name changed to ADB Toolkit, and the APK signing flow simplified to a single generic implementation.</p>
+        <ul>
+            <li>插件显示名更改为 ADB Toolkit（JetBrains Marketplace 审核要求插件名称使用拉丁字符）；描述与变更记录首段改为英文摘要，正文保留中文。</li>
+            <li>补充插件 Logo：按平台约定新增 META-INF/pluginIcon.svg（浅色主题）与 pluginIcon_dark.svg（深色主题），修复 v1.0.68 移除 <code>&lt;icon&gt;</code> 顶层元素后插件管理器与插件市场无法展示插件图标的问题。</li>
+            <li>安装包内附 CHANGELOG.md，安装后可离线查看完整更新日志（此前仅仓库中存在）。</li>
+            <li>签名流程简化为单一通用实现：移除内部的两套签名区分（此前分别维护各自的密钥库与凭据），「应用签名」页合并为「APK签名」「签名校验」「签名校验md5一条龙」「生成MD5」四个按钮；设置「签名配置」页仅保留一个密钥库文件路径，不再内置默认路径，未配置时签名前给出明确提示；另一套签名专用的配置项与环境变量一并删除。</li>
+        </ul>
+        <h4>v1.0.69</h4>
+        <ul>
+            <li>新增设置「工具配置」页：scrcpy、apksigner、java 三个外部工具的可执行文件路径均可手动指定（留空时仍按原有的 PATH、环境变量与 SDK 位置自动探测）。此前 scrcpy 路径完全写死、apksigner 与 java 只能靠探测，工具装在非默认目录时无法使用。</li>
+            <li>路径解析统一为「设置项优先 → 自动探测兜底」：屏幕投影优先使用设置中的 scrcpy 路径（指定但文件不存在时明确报错，不再静默回退）；签名与校验优先使用设置中的 apksigner 路径（未找到时的提示同步指向新设置页）；签名使用 .jar 时优先使用设置中的 java 路径，未配置或无效时回退 IDE 自带 JVM。</li>
+            <li>修复设置「关于」页版本号写死（此前固定显示 1.0.67，与实际安装版本不符），改为运行时从插件描述符读取。</li>
+            <li>工程构建：本机 Android Studio 安装路径不再硬编码在 build.gradle.kts 中，改用 -PlocalAsPath 或环境变量 AS_LOCAL_PATH 提供，未提供或路径下缺少 build.txt 时构建直接报错并给出提示。</li>
+        </ul>
+        <h4>v1.0.68</h4>
+        <ul>
+            <li>修复在 Android Studio 2024.1 / 2024.2 上启动时报「invalid plugin descriptor」导致插件无法加载的问题：plugin.xml 中移除了 2024.3 才支持的 <code>&lt;license&gt;</code> 与 <code>&lt;icon&gt;</code> 顶层元素。这两个元素虽被 2024.3+ 支持，但 2024.1 / 2024.2 的描述符解析器遇到未识别顶层元素会直接判为非法描述符。工具窗口图标不受影响（仍由 toolWindow 的 icon 属性提供）。</li>
+            <li>界面细节美化：统一全站圆角、字号与留白度量；设置弹窗左侧导航改为圆角胶囊高亮并补齐悬停反馈；弹窗标题栏增加细分隔线；新增主题化的分隔线与悬停色值，保持跟随 IDE 深浅色主题。</li>
+        </ul>
+        <h4>v1.0.67</h4>
+        <ul>
+            <li>修复功能按钮区拖动后列数被锁死的问题：此前每行列数在首次布局时被固定，导致工具窗口由窄变宽后仍只显示一列且不再变化；现改为每次按当前可用宽度动态重排，拖动窗口时列数与分隔线长度实时联动。</li>
+        </ul>
+        <h4>v1.0.66</h4>
+        <ul>
+            <li>设置「签名配置」页精简：仅保留签名文件（密钥库）路径选择，移除密钥别名、库密码、私钥密码配置项。</li>
+        </ul>
+        <h4>v1.0.64</h4>
+        <ul>
+            <li>全新插件图标：深蓝渐变圆角背景 + 绿色 Android 机器人头 + 终端提示符 &gt;_，更直观体现「Android 设备调试终端工具」定位（工具窗口按钮与插件详情页同步更新）。</li>
+            <li>工具窗口懒加载强化：启动阶段窗口一经注册立即隐藏，避免平台恢复可见状态触发内容预创建，不再在启动时执行 adb 探测等重量操作；点击右侧按钮或「Tools → 打开 ADB 工具」时才创建并初始化窗口。</li>
+            <li>新增「Tools → 打开 ADB 工具」菜单入口，随时一键打开工具窗口。</li>
+        </ul>
+        <h4>v1.0.63</h4>
+        <ul>
+            <li>架构优化：主面板重构，拆分「下拉组合按钮」「按钮高亮」为独立控件类，各功能标签页构建方法化，提升代码可维护性。</li>
+            <li>设置弹窗重构：弃用手写坐标，改由行式布局辅助自动推进，彻底消除配置项控件重叠问题。</li>
+            <li>签名流程去重：签名 → 校验 → MD5 统一走公共链路，任一前置步骤失败即中断，不再空跑后续步骤。</li>
+            <li>平台适配加固：Windows 下 apksigner.bat 改为经 cmd 执行；录屏 / 日志进程句柄增加跨线程可见性保护，提升稳定性。</li>
+        </ul>
+        <h4>v1.0.62</h4>
+        <ul>
+            <li>完善插件详情页介绍（Overview）与更新说明（What's New）：Overview 同步补齐全部功能模块（设备信息查询 / 设备操作 / 提取 APK / 停用启用应用 / 模拟输入 / 屏幕投影 / 代理设置 / TAG 过滤等）；What's New 将 v1.0.61 新增功能拆分为逐条明细。</li>
+        </ul>
+        <h4>v1.0.61</h4>
+        <ul>
+            <li>设备管理：新增前台 Activity、设备信息（厂商 / 型号 / 系统版本 / 分辨率 / 密度）、电池信息、CPU 占用、内存占用、存储空间查看。</li>
+            <li>设备管理：新增重启设备（系统 / Bootloader / Recovery 三种模式）、开启 WiFi 调试（自动回显设备局域网 IP）、端口转发（正向 / 反向 / 清除全部规则）。</li>
+            <li>应用管理：新增提取 APK（自动拉取到保存目录）、停用应用、启用应用。</li>
+            <li>屏幕操作：新增模拟点击、模拟滑动、模拟输入、按键事件，以及屏幕投影（scrcpy，自动探测本机安装路径）。</li>
+            <li>文件操作：新增设置 / 清除设备全局代理。</li>
+            <li>日志操作：新增 TAG 过滤，抓取日志时只输出指定 TAG。</li>
+        </ul>
+        <h4>v1.0.60</h4>
+        <ul>
+            <li>顶部按钮调整：「open terminal」更名为「open tools」并移至第一位，设置按钮移到队列最后一位。</li>
+        </ul>
+        <h4>v1.0.59</h4>
+        <ul>
+            <li>插件声明 require-restart，安装 / 卸载 / 更新后 IDE 将明确提示重启编译器，确保插件完整加载生效。</li>
+        </ul>
+        <h4>v1.0.57</h4>
+        <ul>
+            <li>macOS 适配：命令窗默认字体按平台选择（macOS 用 Menlo，其余平台用 Consolas）；设置页字体下拉列表按平台提供候选（macOS 增加 Menlo / SF Mono / Monaco / 苹方 / 冬青黑体等本地字体）；adb 手动选择提示文案不再硬编码 .exe。</li>
+        </ul>
+        <h4>v1.0.56</h4>
+        <ul>
+            <li>修复签名流程中签名工具 apksigner 定位失败：定位前强制刷新 adb 路径，并新增 PATH 解析 adb 反推 SDK、平台 SDK 表多路探测（AndroidSdkUtils / LocalSdk / ProjectJdkTable），覆盖 SDK 安装于非标准目录的场景；未找到时给出可操作的配置指引。</li>
+        </ul>
+        <h4>v1.0.55</h4>
+        <ul>
+            <li>签名配置全面可配置化：设置页新增签名密钥别名、库密码、私钥密码输入项（密码掩码输入、静默持久化不打印明文），未填写时使用内置默认值，彻底移除签名硬编码。</li>
+        </ul>
+        <h4>v1.0.54</h4>
+        <ul>
+            <li>简化签名流程：签名与签名校验统一只使用 apksigner 一条命令完成，移除 jarsigner 回退逻辑。</li>
+        </ul>
+        <h4>v1.0.53</h4>
+        <ul>
+            <li>再次修复签名/校验输出乱码：上一版回退依赖系统默认编码，但 Android Studio 的 JBR 强制 UTF-8 导致回退无效；现改为中文 Windows 上显式按 GBK 解码 jarsigner 等 JDK 工具输出。</li>
+        </ul>
+        <h4>v1.0.52</h4>
+        <ul>
+            <li>修复签名/校验输出在中文 Windows 下显示乱码的问题：外部进程输出优先按 UTF-8 严格解码，解码失败自动回退系统默认编码（GBK），jarsigner 等 JDK 工具的输出现在可正常显示中文。</li>
+        </ul>
+        <h4>v1.0.51</h4>
+        <ul>
+            <li>修复签名/校验找不到 apksigner 或 jarsigner 的问题：签名工具定位新增 Android Studio 平台库 SDK 探测、用户配置的 adb 路径反推，以及 JAVA_HOME / PATH 中查找 jarsigner。</li>
+        </ul>
+        <h4>v1.0.50</h4>
+        <ul>
+            <li>每次启动不再主动弹出 ADB 工具窗口，需要时点击右侧工具窗口栏按钮手动打开。</li>
+        </ul>
+        <h4>v1.0.49</h4>
+        <ul>
+            <li>关闭编译器（Android Studio）时自动关闭 ADB 工具窗口，释放 adb 进程与 logcat 抓取资源。</li>
+        </ul>
+        <h4>v1.0.48</h4>
+        <ul>
+            <li>同步维护「What's New」更新说明：从本版本起，每次版本更新都会在插件详情页同步展示对应变更内容。</li>
+        </ul>
+        <h4>v1.0.47</h4>
+        <ul>
+            <li>配置发布链路：verifyPlugin 兼容性检查、插件签名、publishPlugin 发布任务，并搭建 GitHub Actions 持续集成（构建 / 验证 / 手动发布）。</li>
+            <li>插件介绍补充英文简介，满足 JetBrains Marketplace 校验要求。</li>
+        </ul>
+        <h4>v1.0.46</h4>
+        <ul>
+            <li>去除全部本机与 Windows 专有硬编码路径：adb 与 Android SDK 探测改为通用方式，兼容 macOS / Linux / Windows。</li>
+            <li>默认签名文件路径改为跨平台的用户主目录 key 目录。</li>
+            <li>插件声明 Apache-2.0 许可证，生成 gradle wrapper。</li>
+            <li>兼容版本范围扩展为 Android Studio 2024.1 ~ 2025.1。</li>
+        </ul>
+        <h4>v1.0.45</h4>
+        <ul>
+            <li>补充插件详情页「What's New」与「Additional Info」展示内容。</li>
+        </ul>
+        <h4>v1.0.44</h4>
+        <ul>
+            <li>修复插件详情页「Overview」介绍被旧版描述覆盖的问题，完整展示所有功能模块说明。</li>
+        </ul>
+        <h4>v1.0.43</h4>
+        <ul>
+            <li>全面重写插件介绍（Overview），按功能模块逐项说明全部能力。</li>
+        </ul>
+        <h4>v1.0.42</h4>
+        <ul>
+            <li>「应用管理」页按功能两两分组（安装/卸载、包名/参数启动、结束进程/清除缓存），组间用横线分隔。</li>
+        </ul>
+        <h4>v1.0.41</h4>
+        <ul>
+            <li>功能按钮排布与分隔线长度固定，不再随窗口大小变化。</li>
+        </ul>
+        <h4>v1.0.40</h4>
+        <ul>
+            <li>「应用签名」页分隔线改为按本页最多按钮行的按钮总宽度绘制。</li>
+        </ul>
+        <h4>v1.0.37</h4>
+        <ul>
+            <li>设置文案调整：adb配置、待安装应用目录、待签名apk文件夹。</li>
+        </ul>
+        <h4>v1.0.35</h4>
+        <ul>
+            <li>新增签名文件路径配置，可在「设置 → 签名配置」中修改，不再写死。</li>
+        </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+    <!-- 输出重定向到 AS 内置 Terminal（AS 自带，插件内已默认启用） -->
+    <depends>org.jetbrains.plugins.terminal</depends>
+    <!-- Android Studio 中存在时启用更精准的 SDK 路径探测（非必须，运行期通过反射调用） -->
+    <depends optional="true" config-file="android-support.xml">com.android.tools.idea</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+                serviceInterface="com.asadb.tools.model.AdbSettingsState"
+                serviceImplementation="com.asadb.tools.model.AdbSettingsState"/>
+
+        <toolWindow
+                id="ADB 工具"
+                anchor="right"
+                icon="/icons/adb.png"
+                factoryClass="com.asadb.tools.AdbToolWindowFactory"/>
+    </extensions>
+
+    <!-- 打开 ADB 工具窗口的菜单入口：点击时才创建并显示窗口（懒加载） -->
+    <actions>
+        <action id="com.asadb.tools.OpenAdbTools"
+                class="com.asadb.tools.OpenAdbToolsAction"
+                text="打开 ADB 工具"
+                description="Open the ADB Tools tool window (created on first click)">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+
+    <!-- 关闭编译器时主动关闭 ADB 工具窗口，释放 adb 进程与 logcat 资源 -->
+    <applicationListeners>
+        <listener class="com.asadb.tools.AdbAppLifecycleListener"
+                  topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
+
+    <!-- 每次启动（项目打开）时不主动展示 ADB 工具窗口，由用户手动点击打开 -->
+    <projectListeners>
+        <listener class="com.asadb.tools.AdbProjectListener"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </projectListeners>
+</idea-plugin>

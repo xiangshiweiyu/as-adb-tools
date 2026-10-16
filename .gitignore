@@ -1,0 +1,14 @@
+.gradle/
+build/
+out/
+.idea/
+.kotlin/
+.vscode/
+*.iml
+local.properties
+.trae/
+
+# 密钥库与凭据：公开仓库严禁入库
+*.keystore
+*.jks
+.env*
